@@ -936,12 +936,48 @@
               </div>
             </section>
 
+            <!-- ... (previous HTML content unchanged) -->
+            
             <section id="feedback" className="py-16 bg-white">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-3xl font-poppins font-bold text-gray-800 mb-8 text-center">We Value Your Feedback</h2>
                 <p className="text-lg text-gray-600 mb-8 text-center">Let us know how we can improve the ePortfolio Generator!</p>
                 <div className="bg-gray-100 p-8 rounded-xl shadow-lg">
-                  <div onSubmit={handleFeedbackSubmit}>
+                  <form
+                    name="feedback"
+                    data-netlify="true"
+                    data-netlify-honeypot="bot-field"
+                    action="/success"
+                    method="POST"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const form = e.target;
+                      fetch('/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(new FormData(form)).toString(),
+                      })
+                        .then(() => {
+                          setFeedbackMessage('Feedback submitted successfully! Thank you.');
+                          setFeedbackData(initialFeedbackData);
+                          setFeedbackErrors({});
+                          setTimeout(() => setFeedbackMessage(''), 3000);
+                          form.reset();
+                          window.location.href = '/success'; // Redirect to custom success page
+                        })
+                        .catch((error) => {
+                          console.error('Feedback submission error:', error);
+                          setFeedbackMessage('Error submitting feedback. Please try again.');
+                          setTimeout(() => setFeedbackMessage(''), 3000);
+                        });
+                    }}
+                  >
+                    <input type="hidden" name="form-name" value="feedback" />
+                    <p className="hidden">
+                      <label>
+                        Don’t fill this out: <input name="bot-field" />
+                      </label>
+                    </p>
                     <FormInput
                       id="feedbackName"
                       name="feedbackName"
@@ -976,8 +1012,7 @@
                       error={feedbackErrors.feedbackMessage}
                     />
                     <button
-                      type="button"
-                      onClick={handleFeedbackSubmit}
+                      type="submit"
                       disabled={isFeedbackLoading || Object.keys(feedbackErrors).length > 0}
                       className={`w-full py-3 px-6 rounded-full font-semibold focus:outline-none focus:ring focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center ${
                         isFeedbackLoading || Object.keys(feedbackErrors).length > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
@@ -991,10 +1026,12 @@
                         <p>{feedbackMessage}</p>
                       </div>
                     )}
-                  </div>
+                  </form>
                 </div>
               </div>
             </section>
+            
+            <!-- ... (rest of the HTML content unchanged) -->
 
             <section id="faq" className="py-16 bg-gray-100">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
